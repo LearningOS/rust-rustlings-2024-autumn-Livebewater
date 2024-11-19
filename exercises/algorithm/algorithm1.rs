@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -29,13 +28,19 @@ struct LinkedList<T> {
     end: Option<NonNull<Node<T>>>,
 }
 
-impl<T> Default for LinkedList<T> {
+impl<T> Default for LinkedList<T>
+where  
+    T: PartialOrd
+{
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<T> LinkedList<T> {
+impl<T> LinkedList<T> 
+where  
+    T: PartialOrd
+{
     pub fn new() -> Self {
         Self {
             length: 0,
@@ -69,14 +74,53 @@ impl<T> LinkedList<T> {
             },
         }
     }
+
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut ret = Self::new();
+        let mut val_a: &T;
+        let mut val_b: &T;
+        let mut next_node_a = list_a.start;
+        let mut next_node_b = list_b.start;
+        let mut next_node: Option<NonNull<Node<T>>>;
+        while !next_node_a.is_none() || !next_node_b.is_none() {                
+            if next_node_a.is_none() {
+                next_node = next_node_b;
+                next_node_b = unsafe { (*next_node_b.unwrap().as_ptr()).next };
+
+            }
+            else if next_node_b.is_none() {
+                next_node = next_node_a;
+                next_node_a = unsafe { (*next_node_a.unwrap().as_ptr()).next };    
+            }
+            else {
+                unsafe {
+                    if (*next_node_a.unwrap().as_ptr()).val < (*next_node_b.unwrap().as_ptr()).val {
+                        next_node = next_node_a;     
+                        next_node_a = unsafe { (*next_node_a.unwrap().as_ptr()).next };       
+                    }
+                    else {
+                        next_node = next_node_b;
+                        next_node_b = unsafe { (*next_node_b.unwrap().as_ptr()).next };
+                    }                
+                }
+                
+            }
+            unsafe {
+                match ret.end {
+                    Some(node) => {
+                        (*node.as_ptr()).next = next_node;
+                        ret.end = next_node;
+                    },
+                    None => {
+                        ret.start = next_node;
+                        ret.end = next_node;
+                    }
+                }  
+            }
+            ret.length += 1;   
         }
+        ret
 	}
 }
 

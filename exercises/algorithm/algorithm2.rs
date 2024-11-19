@@ -2,7 +2,6 @@
 	double linked list reverse
 	This problem requires you to reverse a doubly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -72,8 +71,61 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn reverse(&mut self){
-		// TODO
+	
+    pub fn reverse(&mut self){
+        let mut start_next_node;
+        let mut start_prev_node;        
+        let mut end_next_node;
+        let mut end_prev_node;
+
+        let mut tmp = self.start;
+        for i in 0..self.length{
+            println!("{:?}", tmp);
+            tmp = unsafe{ (*tmp.unwrap().as_ptr()).next };
+        }
+        
+        println!("----");
+
+		let mut start_node = &mut self.start;
+        let mut end_node = &mut self.end;
+        
+        let loop_cnt = self.length/2;
+        
+        let mut start_next;
+        let mut end_prev;
+
+        unsafe {
+            for i in 0..loop_cnt{                                 
+                start_next_node = unsafe { (*start_node.unwrap().as_ptr()).next };
+                start_prev_node = unsafe { (*start_node.unwrap().as_ptr()).prev };                
+                end_prev_node = unsafe { (*end_node.unwrap().as_ptr()).prev };
+                end_next_node= unsafe { (*end_node.unwrap().as_ptr()).next };
+                
+                println!("{:?}, {:?}", start_node, end_node);
+                start_next = &mut (*start_node.unwrap().as_ptr()).prev;
+                end_prev = &mut (*end_node.unwrap().as_ptr()).next;
+
+                (*start_node.unwrap().as_ptr()).prev = start_next_node;
+                (*start_node.unwrap().as_ptr()).next = start_prev_node;
+
+                (*end_node.unwrap().as_ptr()).prev = end_next_node;
+                (*end_node.unwrap().as_ptr()).next = end_prev_node;
+                                    
+                end_node = end_prev;
+                start_node = start_next;
+            } 
+        }  
+
+        println!("----");
+
+        std::mem::swap(&mut self.start, &mut self.end);
+        tmp = self.start;
+        for i in 0..self.length{
+            println!("{:?}", tmp);
+            tmp = unsafe{ (*tmp.unwrap().as_ptr()).next };
+        }
+
+        
 	}
 }
 

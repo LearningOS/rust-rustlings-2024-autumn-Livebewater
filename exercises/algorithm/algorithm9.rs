@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,25 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.count += 1;
+        if self.len() == 1{
+            if let Some(first) = self.items.get_mut(0){
+                *first = value;
+            }
+        }
+        else{
+            self.items.push(value);        
+            let mut idx = self.len();
+            let mut parrent_idx;
+            while idx!=1{
+                parrent_idx = self.parent_idx(idx);
+                if (self.comparator)(self.items.get(idx-1).unwrap(), self.items.get(parrent_idx-1).unwrap()){
+                    self.items.swap(parrent_idx-1, idx-1);
+                }
+                idx = parrent_idx;
+            }
+            
+        }    
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +74,18 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if self.left_child_idx(idx)+1 <= self.count{
+            if (self.comparator)(self.items.get(self.left_child_idx(idx)-1).unwrap(), self.items.get(self.right_child_idx(idx)-1).unwrap()){
+                self.left_child_idx(idx)
+            }
+            else {
+                self.right_child_idx(idx)
+            }
+        }
+        else{
+            self.left_child_idx(idx)
+        }                
+		
     }
 }
 
@@ -84,8 +111,23 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty(){
+            return None
+        }
+        let last_idx = self.len()-1;
+        self.items.swap(0, last_idx);
+        let ret = self.items.pop();
+        self.count -= 1;
+        let mut idx = 1;
+        let mut child_idx;
+        while self.children_present(idx){
+            child_idx = self.smallest_child_idx(idx);
+            if !(self.comparator)(self.items.get(idx-1).unwrap(), self.items.get(child_idx-1).unwrap()){
+                self.items.swap(idx-1, child_idx-1)
+            }            
+            idx = child_idx;
+        }
+        ret
     }
 }
 
